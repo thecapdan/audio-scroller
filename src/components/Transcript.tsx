@@ -20,44 +20,72 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
     ({ title, text, translation, jumpTo, timestamps }, ref) => {  const [spanishTitle, englishTitle] = Object.entries(title)[0];
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  const paragraphRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  const highlightParagraph = (index: number) => {
+    Object.values(paragraphRefs.current).forEach((el) => {
+      if (el) el.style.backgroundColor = "transparent"; // Reset all backgrounds
+    });
+
+    if (paragraphRefs.current[index]) {
+      paragraphRefs.current[index]!.style.backgroundColor = "rgba(0, 0, 0, 0.05)";
+    }
+  };
+
 
   const processTextWithTooltips = (text: string, translations: Record<string, string>) => {
     const regex = new RegExp(`(${Object.keys(translations).join("|")})`, "gi");
     const parts = text.split(regex);
 
-    return parts.map((part, index) =>
-      translations[part] ? (
+    return parts.map((part, index) => {
+      const lowerCasePart = part.toLowerCase(); // Normalize case for matching
+      const translationKey = Object.keys(translations).find(
+        key => key.toLowerCase() === lowerCasePart
+      );
+
+      return translationKey ? (
         <WordWithTooltip
           key={index}
-          translation={translations[part]}
-          wordOrSentence={part}
+          translation={translations[translationKey]}
+          wordOrSentence={part} // Keep the original case for display
           size="Small"
         />
       ) : (
         part
-      )
-    );
+      );
+    });
   };
-
 
   useImperativeHandle(ref, () => ({
     jumpToParagraph(index: number) {
-        if (buttonRefs.current[index]) {
-            buttonRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
-          }
+      if (buttonRefs.current[index]) {
+        buttonRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
+      }
+      highlightParagraph(index); // Highlight paragraph when jumping
     },
   }));
 
-
   const renderTextWithLineBreaks = (text: string, translations: Record<string, string>) => {
-    const paragraphQty = text.split("\n").length -1;
+    const paragraphQty = text.split("\n").length - 1;
     const timestampQty = timestamps.length;
+  
     return text.split("\n").map((line, index) => (
-      <React.Fragment key={index}>
+      <span key={index} ref={(el) => (paragraphRefs.current[index] = el)}>
         {processTextWithTooltips(line, translations)}
-        <br /><br />{index < paragraphQty && index+1 < timestampQty ? <button  ref={(el) => (buttonRefs.current[index+1] = el)} style={jumpButtonStyle} onClick={() => jumpTo(timestamps[index+1])}>{">"}</button>: ""}
-
-      </React.Fragment>
+        <br /><br />
+        {index < paragraphQty && index + 1 < timestampQty ? (
+          <button 
+            ref={(el) => (buttonRefs.current[index + 1] = el)}
+            style={jumpButtonStyle}
+            onClick={() => {
+              jumpTo(timestamps[index + 1]);
+              highlightParagraph(index + 1);
+            }}
+          >
+            {">"}
+          </button>
+        ) : null}
+      </span>
     ));
   };
 

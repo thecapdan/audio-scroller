@@ -23,9 +23,19 @@ const AudioTrack = forwardRef<AudioTrackRef, AudioTrackProps>(
   // Update the current time as the audio plays
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+      const newTime = audioRef.current.currentTime;
+      setCurrentTime(newTime);
+  
+      // Find the closest timestamp that is still ahead
+      for (let i = timestamps.length - 1; i >= 0; i--) {
+        if (newTime >= timestamps[i]) {
+          positionJump(i); // Notify transcript to highlight the paragraph
+          break;
+        }
+      }
     }
   };
+  
 
   // Expose handleJumpToTimestamp to the parent through ref
   useImperativeHandle(ref, () => ({
