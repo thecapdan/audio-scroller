@@ -13,7 +13,7 @@ const StyledSpan = styled("span")<{ size: Size }>(({ size }) => {
   let fontSize;
   switch (size) {
     case "Small":
-      fontSize = "15px";
+      fontSize = "16px";
       break;
     case "Medium":
       fontSize = "18px";
@@ -25,11 +25,9 @@ const StyledSpan = styled("span")<{ size: Size }>(({ size }) => {
       fontSize = "14px";
   }
   return {
-    fontWeight: "bold",
-    color: "navy",
     cursor: "pointer",
     fontSize,
-    textDecoration: "underline",
+    fontWeight: "bold",
   };
 });
 
