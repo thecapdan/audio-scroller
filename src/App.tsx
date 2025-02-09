@@ -22,7 +22,7 @@ import Transcript, { TranscriptRef } from "./components/Transcript";
 import mp3File from "./assets/episode_1/recording.m4a";
 
 import episode from "./assets/episode_1/AC Page 1.json";
-import AudioTrack, { AudioTrackRef } from "./components/AudioTrack";
+import AudioTrack from "./components/AudioTrack";
 import { AndroidStyleSwitch } from "./components/atoms/AndroidStyleSwitch";
 
 const sideButtonStyle = {
@@ -55,8 +55,8 @@ const LandingPage: React.FC = () => {
     showHighlight: true,
   });
   const settingsAnchorRef = useRef(null);
-  const audioTrackRef = useRef<AudioTrackRef>(null);
   const transcriptRef = useRef<TranscriptRef>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const settingsUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event);
@@ -71,13 +71,12 @@ const LandingPage: React.FC = () => {
   );
 
   const handleTrackJump = (timestamp: number) => {
-    if (audioTrackRef.current) {
-      audioTrackRef.current.handleJumpToTimestamp(timestamp);
+    if (audioRef.current) {
+      audioRef.current.currentTime = timestamp;
     }
   };
 
   const paragraphHop = (index: number) => {
-    console.log("JUMP");
     transcriptRef.current?.jumpToParagraph(index);
   };
 
@@ -142,7 +141,7 @@ const LandingPage: React.FC = () => {
               pathToMp3={mp3File}
               timestamps={episode.timestamps}
               positionJump={paragraphHop}
-              ref={audioTrackRef}
+              audioRef={audioRef}
             />
           </Toolbar>
         </AppBar>
