@@ -1,4 +1,10 @@
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import { Container, Typography } from "@mui/material";
 import WordWithTooltip from "./TranslatedWords";
 
@@ -9,6 +15,7 @@ interface TranscriptProps {
   jumpTo: Function;
   timestamps: number[];
   settings: TranscriptSettings;
+  imageName: string; // Updated: Accepts image name instead of full path
 }
 
 export interface TranscriptSettings {
@@ -28,15 +35,29 @@ export interface TranscriptRef {
 }
 
 const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
-  ({ title, text, translation, jumpTo, timestamps, settings }, ref) => {
+  (
+    { title, text, translation, jumpTo, timestamps, settings, imageName },
+    ref
+  ) => {
     const [spanishTitle, englishTitle] = Object.entries(title)[0];
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
     const paragraphRefs = useRef<Record<number, HTMLDivElement | null>>({});
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+    // Use Vite's method to resolve image URL dynamically
+    useEffect(() => {
+      if (imageName) {
+        const imgUrl = new URL(
+          `../assets/episodes/${imageName}.jpg`,
+          import.meta.url
+        ).href;
+        setImageSrc(imgUrl);
+      }
+    }, [imageName]);
 
     const highlightParagraph = (index: number) => {
       Object.values(paragraphRefs.current).forEach((el) => {
-        if (el) el.style.backgroundColor = "transparent"; // Reset all backgrounds
+        if (el) el.style.backgroundColor = "transparent";
       });
 
       if (paragraphRefs.current[index]) {
@@ -56,7 +77,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
       const parts = text.split(regex);
 
       return parts.map((part, index) => {
-        const lowerCasePart = part.toLowerCase(); // Normalize case for matching
+        const lowerCasePart = part.toLowerCase();
         const translationKey = Object.keys(translations).find(
           (key) => key.toLowerCase() === lowerCasePart
         );
@@ -65,7 +86,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
           <WordWithTooltip
             key={index}
             translation={translations[translationKey]}
-            wordOrSentence={part} // Keep the original case for display
+            wordOrSentence={part}
             size="Small"
           />
         ) : (
@@ -132,7 +153,22 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
             size="Large"
           />
         </Typography>
-        {/* Render the text with tooltips for translatable parts */}
+
+        {/* Render the dynamically loaded image */}
+        {imageSrc && (
+          <img
+            src={imageSrc}
+            alt={englishTitle}
+            style={{
+              width: "100%",
+              maxHeight: "300px",
+              objectFit: "cover",
+              marginBottom: "16px",
+            }}
+          />
+        )}
+
+        {/* Render the transcript text */}
         <Typography variant="body1">
           <button
             ref={(el) => (buttonRefs.current[0] = el)}

@@ -1,10 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
   Box,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
   AppBar,
   Toolbar,
   IconButton,
@@ -19,36 +15,22 @@ import {
 import SettingsIcon from "@mui/icons-material/Settings";
 import Transcript, { TranscriptRef } from "./components/Transcript";
 
-import mp3File from "./assets/episode_1/recording.m4a";
+import episode_1 from "./assets/episodes/episode_1_audio.m4a";
+import episode_meta_1 from "./assets/episodes/episode_1_meta.json";
+import episode_meta_2 from "./assets/episodes/episode_2_meta.json";
 
-import episode from "./assets/episode_1/AC Page 1.json";
 import AudioTrack from "./components/AudioTrack";
 import { AndroidStyleSwitch } from "./components/atoms/AndroidStyleSwitch";
+import EpisodeList from "./components/EpisodeList";
 
-const sideButtonStyle = {
-  position: "fixed",
-  minWidth: "30px",
-  left: 0,
-  top: "50%",
-  transform: "translateY(-50%)",
-  height: "100%",
-  writingMode: "vertical-rl",
-  textAlign: "center",
-  borderRadius: "0 8px 8px 0",
-  zIndex: 1300,
-  padding: "0px",
+const episodeMeta: { [key: number]: any } = {
+  1: episode_meta_1,
+  2: episode_meta_2,
 };
 
 const LandingPage: React.FC = () => {
+  const [episodeNumber, setEpisodeNumber] = React.useState(1);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-
-  const [filter, setFilter] = useState("");
-  const [items] = useState([
-    "Episode 1: Agatha Christie",
-    "Episode 2: The Gunpowder Plot",
-    "Episode 3: The Canoe Man",
-    "Episode 4: DB Cooper",
-  ]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [transcriptSettings, setTranscriptSettings] = React.useState({
     autoScroll: true,
@@ -58,6 +40,10 @@ const LandingPage: React.FC = () => {
   const transcriptRef = useRef<TranscriptRef>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const updateEpisode = (index: number) => {
+    setEpisodeNumber(index);
+  };
+
   const settingsUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event);
     setTranscriptSettings({
@@ -65,10 +51,6 @@ const LandingPage: React.FC = () => {
       [event.target.name]: event.target.checked,
     });
   };
-
-  const filteredItems = items.filter((item) =>
-    item.toLowerCase().includes(filter.toLowerCase())
-  );
 
   const handleTrackJump = (timestamp: number) => {
     if (audioRef.current) {
@@ -89,33 +71,26 @@ const LandingPage: React.FC = () => {
       {" "}
       <Drawer
         open={drawerOpen}
-        onClose={() => toggleDrawer()}
-        variant="persistent" // Keeps drawer open unless closed manually
-        sx={{ width: "15%", flexShrink: 0 }} // Ensure drawer is 25% of the screen
+        onClose={toggleDrawer} // 👈 Ensure it closes on backdrop click
+        variant="persistent"
+        sx={{ width: "15%", flexShrink: 0 }}
       >
         <Box
           sx={{
-            width: "90%", // Make sure the content inside drawer fills it
+            width: "90%",
             borderRight: "1px solid #ccc",
             p: 2,
             overflowY: "auto",
             paddingLeft: "25px",
           }}
         >
-          <TextField
-            label="Filter List"
-            variant="outlined"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            sx={{ mb: 2, paddingLeft: "10px" }}
+          <EpisodeList
+            episodes={episodeMeta}
+            selectEpisode={(episodeIndex: number) => {
+              updateEpisode(episodeIndex);
+              toggleDrawer();
+            }}
           />
-          <List>
-            {filteredItems.map((item, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={item} />
-              </ListItem>
-            ))}
-          </List>
         </Box>
       </Drawer>
       {/* Main Content */}
@@ -138,8 +113,8 @@ const LandingPage: React.FC = () => {
         >
           <Toolbar>
             <AudioTrack
-              pathToMp3={mp3File}
-              timestamps={episode.timestamps}
+              pathToMp3={episode_1}
+              timestamps={episodeMeta[episodeNumber].timestamps}
               positionJump={paragraphHop}
               audioRef={audioRef}
             />
@@ -149,7 +124,8 @@ const LandingPage: React.FC = () => {
         <Button
           variant="contained"
           onClick={() => toggleDrawer()}
-          sx={sideButtonStyle}
+          className="sideButton"
+          sx={{ position: "fixed", padding: "0px", minWidth: "22px" }}
         >
           Episodes
         </Button>
@@ -217,13 +193,14 @@ const LandingPage: React.FC = () => {
           </Popper>
 
           <Transcript
-            title={episode.title}
-            text={episode.text}
-            translation={episode.translations}
+            title={episodeMeta[episodeNumber].title}
+            text={episodeMeta[episodeNumber].text}
+            translation={episodeMeta[episodeNumber].translations}
             jumpTo={handleTrackJump}
-            timestamps={episode.timestamps}
+            timestamps={episodeMeta[episodeNumber].timestamps}
             ref={transcriptRef}
             settings={transcriptSettings}
+            imageName={`episode_${episodeNumber}`}
           />
         </Box>
       </Box>
