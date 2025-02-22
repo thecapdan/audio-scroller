@@ -15,7 +15,7 @@ import {
 import SettingsIcon from "@mui/icons-material/Settings";
 import Transcript, { TranscriptRef } from "./components/Transcript";
 
-import episode_1 from "./assets/episodes/episode_1_audio.m4a";
+import episode_1 from "./assets/episodes/episode_1.mp3";
 import episode_meta_1 from "./assets/episodes/episode_1_meta.json";
 import episode_meta_2 from "./assets/episodes/episode_2_meta.json";
 
@@ -33,7 +33,7 @@ const LandingPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [transcriptSettings, setTranscriptSettings] = React.useState({
-    autoScroll: true,
+    autoScroll: false,
     showHighlight: true,
   });
   const settingsAnchorRef = useRef(null);
@@ -99,7 +99,6 @@ const LandingPage: React.FC = () => {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          paddingLeft: "35px",
         }}
       >
         <AppBar
@@ -109,6 +108,7 @@ const LandingPage: React.FC = () => {
           sx={{
             backgroundColor: "#f5f5f5",
             borderBottom: "1px solid #ccc",
+            paddingLeft: "35px",
           }}
         >
           <Toolbar>

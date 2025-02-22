@@ -26,3 +26,7 @@ dist-ssr
 # private content
 src/assets
 question.tsx
+/unused_resources
+# Local Netlify folder
+.netlify
+netlify.toml

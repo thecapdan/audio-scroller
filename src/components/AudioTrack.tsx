@@ -153,7 +153,7 @@ const AudioTrack: React.FC<AudioTrackProps> = ({
                 transform: "translateX(-50%)",
                 padding: "2px 2px",
                 fontSize: "8px",
-                minWidth: "30px",
+                minWidth: "16px",
               }}
               onClick={() => {
                 handleJumpToTimestamp(timestamp), positionJump(index);
