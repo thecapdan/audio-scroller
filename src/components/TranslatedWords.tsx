@@ -3,7 +3,7 @@ import { Tooltip, styled } from "@mui/material";
 
 import { TooltipProps } from "@mui/material/Tooltip";
 
-const StyledSpan = styled("span")<{ size: Size }>(({ size }) => {
+const StyledSpan = styled("span")<{ size: string }>(({ size }) => {
   let fontSize;
   switch (size) {
     case "Small":
@@ -57,9 +57,17 @@ const WordWithTooltip: React.FC<{
   wordOrSentence: string;
   translation: string;
   size: "Small" | "Medium" | "Large";
-}> = ({ wordOrSentence, translation, size }) => {
+  save: Function;
+}> = ({ wordOrSentence, translation, size, save }) => {
   return (
-    <StyledTooltip title={translation} size={size} arrow>
+    <StyledTooltip
+      title={translation}
+      size={size}
+      arrow
+      onClick={() => {
+        save(wordOrSentence, translation);
+      }}
+    >
       <StyledSpan size={size}>{wordOrSentence}</StyledSpan>
     </StyledTooltip>
   );

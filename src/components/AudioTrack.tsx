@@ -8,6 +8,7 @@ interface AudioTrackProps {
   pathToMp3: string;
   timestamps: number[];
   positionJump: Function;
+  showTimestamps: boolean;
   audioRef: React.RefObject<HTMLAudioElement>;
 }
 
@@ -19,6 +20,7 @@ const AudioTrack: React.FC<AudioTrackProps> = ({
   pathToMp3,
   timestamps,
   positionJump,
+  showTimestamps,
   audioRef,
 }) => {
   const [currentTime, setCurrentTime] = useState(0);
@@ -137,7 +139,7 @@ const AudioTrack: React.FC<AudioTrackProps> = ({
         display="flex"
         justifyContent="space-between"
         mt={1}
-        sx={{ position: "relative" }}
+        sx={[{ position: "relative" }, !showTimestamps && { display: "none" }]}
       >
         {timestamps.map((timestamp, index) => {
           const position = (timestamp / duration) * 100;

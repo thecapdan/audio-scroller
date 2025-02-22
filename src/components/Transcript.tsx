@@ -15,6 +15,7 @@ interface TranscriptProps {
   jumpTo: Function;
   timestamps: number[];
   settings: TranscriptSettings;
+  onNotesUpdate: Function;
   imageName: string; // Updated: Accepts image name instead of full path
 }
 
@@ -36,13 +37,34 @@ export interface TranscriptRef {
 
 const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
   (
-    { title, text, translation, jumpTo, timestamps, settings, imageName },
+    {
+      title,
+      text,
+      translation,
+      jumpTo,
+      timestamps,
+      settings,
+      imageName,
+      onNotesUpdate,
+    },
     ref
   ) => {
     const [spanishTitle, englishTitle] = Object.entries(title)[0];
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const paragraphRefs = useRef<Record<number, HTMLDivElement | null>>({});
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+    const saveToNotes = (sentence: string, translation: string) => {
+      const savedTranslations = JSON.parse(
+        localStorage.getItem("savedTranslations") || "{}"
+      );
+      savedTranslations[sentence] = translation;
+      localStorage.setItem(
+        "savedTranslations",
+        JSON.stringify(savedTranslations)
+      );
+      onNotesUpdate();
+    };
 
     // Use Vite's method to resolve image URL dynamically
     useEffect(() => {
@@ -88,6 +110,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
             translation={translations[translationKey]}
             wordOrSentence={part}
             size="Small"
+            save={saveToNotes}
           />
         ) : (
           part
@@ -151,6 +174,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
             translation={englishTitle}
             wordOrSentence={spanishTitle}
             size="Large"
+            save={saveToNotes}
           />
         </Typography>
 
