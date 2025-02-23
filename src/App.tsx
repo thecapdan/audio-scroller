@@ -1,4 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { lightTheme, darkTheme } from "./theme";
+import { GlobalStyles } from "./GlobalStyles";
+
 import {
   Box,
   AppBar,
@@ -13,6 +17,7 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import Transcript, { TranscriptRef } from "./components/Transcript";
 
 import episode_1 from "./assets/episodes/episode_1.mp3";
+import episode_2 from "./assets/episodes/episode_2_audio.mp3";
 import episode_meta_1 from "./assets/episodes/episode_1_meta.json";
 import episode_meta_2 from "./assets/episodes/episode_2_meta.json";
 
@@ -25,8 +30,14 @@ const episodeMeta: { [key: number]: any } = {
   1: episode_meta_1,
   2: episode_meta_2,
 };
+const episodeTracks: { [key: number]: any } = {
+  1: episode_1,
+  2: episode_2,
+};
 
 const LandingPage: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   const [episodeNumber, setEpisodeNumber] = React.useState(1);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -37,6 +48,8 @@ const LandingPage: React.FC = () => {
     autoScroll: false,
     showHighlight: true,
   });
+  const [showGlow, setShowGlow] = useState(false);
+
   const settingsAnchorRef = useRef(null);
   const notesAnchorRef = useRef(null);
   const transcriptRef = useRef<TranscriptRef>(null);
@@ -47,10 +60,19 @@ const LandingPage: React.FC = () => {
       localStorage.getItem("savedTranslations") || "{}"
     );
     setSavedNotes(savedTranslations);
+    setShowGlow(true);
+    setTimeout(() => setShowGlow(false), 2000);
   };
 
   useEffect(() => {
     updateNotes();
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDarkMode(mediaQuery.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   const updateEpisode = (index: number) => {
@@ -82,150 +104,156 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh", margin: 0, padding: 0 }}>
-      {" "}
-      <Drawer
-        open={drawerOpen}
-        onClose={toggleDrawer}
-        variant="persistent"
-        sx={{ width: "15%", flexShrink: 0 }}
-      >
-        <Box
-          sx={{
-            width: "90%",
-            borderRight: "1px solid #ccc",
-            p: 2,
-            overflowY: "auto",
-            paddingLeft: "25px",
-          }}
+    <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
+      <GlobalStyles />
+
+      <div style={{ width: "100vw", height: "100vh", margin: 0, padding: 0 }}>
+        {" "}
+        <Drawer
+          open={drawerOpen}
+          onClose={toggleDrawer}
+          variant="persistent"
+          sx={{ width: "15%", flexShrink: 0 }}
         >
-          <EpisodeList
-            episodes={episodeMeta}
-            selectEpisode={(episodeIndex: number) => {
-              updateEpisode(episodeIndex);
-              toggleDrawer();
+          <Box
+            sx={{
+              width: "90%",
+              borderRight: "1px solid #ccc",
+              p: 2,
+              overflowY: "auto",
+              paddingLeft: "25px",
             }}
-          />
-        </Box>
-      </Drawer>
-      {/* Main Content */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <AppBar
-          position="sticky"
-          color="default"
-          elevation={1}
-          sx={{
-            backgroundColor: "#f5f5f5",
-            borderBottom: "1px solid #ccc",
-            paddingLeft: "35px",
-          }}
-        >
-          <Toolbar>
-            <AudioTrack
-              pathToMp3={episode_1}
-              timestamps={episodeMeta[episodeNumber].timestamps}
-              positionJump={paragraphHop}
-              audioRef={audioRef}
-              showTimestamps={showTimestamps}
+          >
+            <EpisodeList
+              episodes={episodeMeta}
+              selectEpisode={(episodeIndex: number) => {
+                updateEpisode(episodeIndex);
+                toggleDrawer();
+              }}
             />
-          </Toolbar>
-        </AppBar>
-
-        <Button
-          variant="contained"
-          onClick={() => toggleDrawer()}
-          className="sideButton"
-          sx={{ position: "fixed", padding: "0px", minWidth: "22px" }}
-        >
-          Episodes
-        </Button>
-
+          </Box>
+        </Drawer>
+        {/* Main Content */}
         <Box
           sx={{
             flex: 1,
-            overflowY: "auto",
-            padding: 3,
-            backgroundColor: "#fafafa",
+            display: "flex",
+            flexDirection: "column",
           }}
-          onClick={() => setDrawerOpen(false)}
         >
-          <Stack
-            spacing={1}
+          <AppBar
+            position="sticky"
+            color="default"
+            elevation={1}
             sx={{
-              position: "fixed",
-              top: "150px",
-              right: "20px",
-              zIndex: 2000,
+              backgroundColor: "#f5f5f5",
+              borderBottom: "1px solid #ccc",
+              paddingLeft: "35px",
             }}
           >
-            <IconButton
-              ref={settingsAnchorRef}
-              onClick={() => setSettingsOpen((prev) => !prev)}
+            <Toolbar>
+              <AudioTrack
+                pathToMp3={episodeTracks[episodeNumber]}
+                timestamps={episodeMeta[episodeNumber].timestamps}
+                positionJump={paragraphHop}
+                audioRef={audioRef}
+                showTimestamps={showTimestamps}
+              />
+            </Toolbar>
+          </AppBar>
+
+          <Button
+            variant="contained"
+            onClick={() => toggleDrawer()}
+            className="sideButton"
+            sx={{ position: "fixed", padding: "0px", minWidth: "22px" }}
+          >
+            Episodes
+          </Button>
+
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              padding: 3,
+              backgroundColor: "#fafafa",
+            }}
+            onClick={() => setDrawerOpen(false)}
+          >
+            <Stack
+              spacing={1}
               sx={{
-                backgroundColor: "white",
-                borderRadius: "50%",
-                boxShadow: 3,
-                padding: "10px",
-                "&:hover": {
-                  backgroundColor: "grey",
-                },
+                position: "fixed",
+                top: "150px",
+                right: "20px",
+                zIndex: 2000,
               }}
             >
-              <SettingsIcon />
-            </IconButton>
-            <IconButton
-              ref={notesAnchorRef}
-              onClick={() => setNotesOpen((prev) => !prev)}
-              sx={{
-                backgroundColor: "white",
-                borderRadius: "50%",
-                boxShadow: 3,
-                padding: "10px",
-                "&:hover": {
-                  backgroundColor: "grey",
-                },
-              }}
-            >
-              <EditNoteIcon />
-            </IconButton>
-          </Stack>
+              <IconButton
+                ref={settingsAnchorRef}
+                onClick={() => setSettingsOpen((prev) => !prev)}
+                sx={{
+                  backgroundColor: "white",
+                  borderRadius: "50%",
+                  boxShadow: 3,
+                  padding: "10px",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                }}
+              >
+                <SettingsIcon />
+              </IconButton>
+              <IconButton
+                ref={notesAnchorRef}
+                onClick={() => setNotesOpen((prev) => !prev)}
+                sx={{
+                  backgroundColor: showGlow ? "#004cff7d" : "white",
+                  boxShadow: showGlow ? 20 : 3,
+                  borderRadius: "50%",
+                  padding: "10px",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                  transition: "box-shadow 0.3s ease-in-out",
+                }}
+              >
+                <EditNoteIcon />
+              </IconButton>
+            </Stack>
 
-          <Settings
-            isOpen={settingsOpen}
-            anchor={settingsAnchorRef.current}
-            setSettingsOpen={setSettingsOpen}
-            autoScroll={transcriptSettings.autoScroll}
-            showHighlight={transcriptSettings.showHighlight}
-            showTimestamps={showTimestamps}
-            settingsUpdate={settingsUpdate}
-          />
+            <Settings
+              isOpen={settingsOpen}
+              anchor={settingsAnchorRef.current}
+              setSettingsOpen={setSettingsOpen}
+              autoScroll={transcriptSettings.autoScroll}
+              showHighlight={transcriptSettings.showHighlight}
+              showTimestamps={showTimestamps}
+              settingsUpdate={settingsUpdate}
+            />
 
-          <SavedNotes
-            isOpen={notesOpen}
-            setNotesOpen={setNotesOpen}
-            notes={savedNotes}
-          />
+            <SavedNotes
+              isOpen={notesOpen}
+              setNotesOpen={setNotesOpen}
+              notes={savedNotes}
+            />
 
-          <Transcript
-            title={episodeMeta[episodeNumber].title}
-            text={episodeMeta[episodeNumber].text}
-            translation={episodeMeta[episodeNumber].translations}
-            jumpTo={handleTrackJump}
-            timestamps={episodeMeta[episodeNumber].timestamps}
-            ref={transcriptRef}
-            settings={transcriptSettings}
-            imageName={`episode_${episodeNumber}`}
-            onNotesUpdate={updateNotes}
-          />
+            <Transcript
+              title={episodeMeta[episodeNumber].title}
+              text={episodeMeta[episodeNumber].text}
+              translation={episodeMeta[episodeNumber].translations}
+              jumpTo={handleTrackJump}
+              timestamps={episodeMeta[episodeNumber].timestamps}
+              ref={transcriptRef}
+              settings={transcriptSettings}
+              imageName={`episode_${episodeNumber}`}
+              onNotesUpdate={updateNotes}
+            />
+          </Box>
         </Box>
-      </Box>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 };
 

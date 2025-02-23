@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
+
 import {
   ClickAwayListener,
   List,
   ListItem,
-  IconButton,
   Typography,
   Box,
   Button,
   Modal,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import HiddenItem from "./atoms/HiddenText";
 import { Divider } from "@mui/material";
@@ -17,8 +17,16 @@ import { Divider } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 
 const useResponsiveFontSize = () => {
-  const isMobile = useMediaQuery("(max-width:600px)");
-  return isMobile ? "0.8rem" : "1rem";
+  const isSmall = useMediaQuery("(max-width:500px)");
+  const isMedium = useMediaQuery("(max-width:750px)");
+
+  if (isSmall) {
+    return "0.6rem";
+  } else if (isMedium) {
+    return "0.8rem";
+  } else {
+    return "1rem";
+  }
 };
 
 interface SavedNotesProps {
@@ -38,7 +46,7 @@ const style = {
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
-  p: 4,
+  p: 2,
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
@@ -49,6 +57,8 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
   setNotesOpen,
   notes,
 }) => {
+  const theme = useTheme();
+
   const [showAll, setShowAll] = useState(false);
   const [allNotes, setAllNotes] = useState<Record<string, string>[]>([]);
   const [spanishBase, setSpanishBase] = useState(true);
@@ -62,6 +72,7 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
   }, [notes]);
 
   const removeFromNotes = (sentence: string) => {
+    console.log(sentence);
     const savedTranslations = JSON.parse(
       localStorage.getItem("savedTranslations") || "{}"
     );
@@ -92,6 +103,8 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
               justifyContent: "space-between",
               alignItems: "center",
               mb: 2,
+              bgcolor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -105,6 +118,10 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
               variant="contained"
               size="small"
               onClick={() => setShowAll((prev) => !prev)}
+              sx={{
+                width: "100px", // Adjust this value as needed
+                minWidth: "max-content",
+              }}
             >
               {showAll ? "Hide All" : "Show All"}
             </Button>
@@ -117,6 +134,9 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
               overflowY: "auto",
             }}
           >
+            {allNotes.length === 0
+              ? "You may click on the key words to add notes here"
+              : ""}
             <List sx={{ width: "100%", bgcolor: "background.paper" }}>
               {allNotes.map((item, index) => {
                 const [spanish, english] = Object.entries(item)[0];
@@ -129,39 +149,37 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
-                        paddingY: 1,
+                        paddingY: 0,
                       }}
                     >
-                      <Box sx={{ flex: 1, marginRight: 2 }}>
-                        {" "}
-                        {/* Added a container for the main text */}
+                      <Box
+                        sx={{
+                          width: "40%",
+                          marginRight: 1,
+                          overflow: "hidden",
+                          minHeight: "40px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
                         <Typography
                           sx={{
                             fontWeight: "bold",
                             fontSize: responsiveFontSize,
+                            overflow: "hidden",
+                            width: "100%",
                           }}
                         >
                           {spanishBase ? spanish : english}
                         </Typography>
                       </Box>
-
-                      <Box sx={{ flex: 1 }}>
-                        {" "}
-                        {/* Added a container for HiddenItem */}
-                        <HiddenItem
-                          display={showAll}
-                          text={spanishBase ? english : spanish}
-                          fontSize={responsiveFontSize}
-                        />
-                      </Box>
-
-                      <IconButton
-                        edge="end"
-                        onClick={() => removeFromNotes(spanish)}
-                        sx={{ flexShrink: 0 }}
-                      >
-                        <CloseIcon />
-                      </IconButton>
+                      <HiddenItem
+                        display={showAll}
+                        text={spanishBase ? english : spanish}
+                        fontSize={responsiveFontSize}
+                        remove={() => removeFromNotes(spanish)}
+                        key={spanish}
+                      />
                     </ListItem>
                     {index < allNotes.length - 1 && <Divider />}
                   </React.Fragment>

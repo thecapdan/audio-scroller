@@ -79,12 +79,16 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
 
     const highlightParagraph = (index: number) => {
       Object.values(paragraphRefs.current).forEach((el) => {
-        if (el) el.style.backgroundColor = "transparent";
+        if (el) {
+          el.style.backgroundColor = "transparent";
+          el.style.borderRadius = "0";
+        }
       });
 
       if (paragraphRefs.current[index]) {
         paragraphRefs.current[index]!.style.backgroundColor =
           "rgba(0, 0, 0, 0.05)";
+        paragraphRefs.current[index]!.style.borderRadius = "5px";
       }
     };
 
@@ -145,7 +149,11 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
         <div
           key={index}
           ref={(el) => (paragraphRefs.current[index] = el)}
-          style={{ display: "inline" }}
+          style={{
+            display: "inline",
+            padding: "3px 0",
+            margin: "-3px 0",
+          }}
         >
           {processTextWithTooltips(line, translations)}
           <br />
