@@ -42,9 +42,16 @@ const LandingPage: React.FC = () => {
   const transcriptRef = useRef<TranscriptRef>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // useEffect(() => {
-  //   updateNotes();
-  // });
+  const updateNotes = () => {
+    const savedTranslations = JSON.parse(
+      localStorage.getItem("savedTranslations") || "{}"
+    );
+    setSavedNotes(savedTranslations);
+  };
+
+  useEffect(() => {
+    updateNotes();
+  }, []);
 
   const updateEpisode = (index: number) => {
     setEpisodeNumber(index);
@@ -72,13 +79,6 @@ const LandingPage: React.FC = () => {
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
-  };
-
-  const updateNotes = () => {
-    const savedTranslations = JSON.parse(
-      localStorage.getItem("savedTranslations") || "{}"
-    );
-    setSavedNotes(savedTranslations);
   };
 
   return (
