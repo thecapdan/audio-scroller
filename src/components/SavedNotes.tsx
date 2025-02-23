@@ -12,6 +12,14 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import HiddenItem from "./atoms/HiddenText";
+import { Divider } from "@mui/material";
+
+import { useMediaQuery } from "@mui/material";
+
+const useResponsiveFontSize = () => {
+  const isMobile = useMediaQuery("(max-width:600px)");
+  return isMobile ? "0.8rem" : "1rem";
+};
 
 interface SavedNotesProps {
   isOpen: boolean;
@@ -25,14 +33,15 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "60%",
-  maxHeight: "75vh", // Limit modal height to 75% of viewport height
+  maxWidth: "800px",
+  maxHeight: "75vh",
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
   p: 4,
   display: "flex",
-  flexDirection: "column", // Ensures the title and list are stacked properly
-  overflow: "hidden", // Prevents overflow outside modal
+  flexDirection: "column",
+  overflow: "hidden",
 };
 
 const SavedNotes: React.FC<SavedNotesProps> = ({
@@ -43,6 +52,7 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
   const [showAll, setShowAll] = useState(false);
   const [allNotes, setAllNotes] = useState<Record<string, string>[]>([]);
   const [spanishBase, setSpanishBase] = useState(true);
+  const responsiveFontSize = useResponsiveFontSize();
 
   useEffect(() => {
     const translationsArr = Object.entries(notes).map(
@@ -103,8 +113,8 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
           {/* Scrollable List */}
           <Box
             sx={{
-              flexGrow: 1, // Allows list to grow and take available space
-              overflowY: "auto", // Enables vertical scrolling when needed
+              flexGrow: 1,
+              overflowY: "auto",
             }}
           >
             <List sx={{ width: "100%", bgcolor: "background.paper" }}>
@@ -112,34 +122,49 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
                 const [spanish, english] = Object.entries(item)[0];
 
                 return (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      paddingY: 1,
-                    }}
-                  >
-                    {/* Spanish Text - Always Visible */}
-                    <Typography sx={{ flex: 1, fontWeight: "bold" }}>
-                      {spanishBase ? spanish : english}
-                    </Typography>
-
-                    <HiddenItem
-                      display={showAll}
-                      text={spanishBase ? english : spanish}
-                    />
-
-                    {/* X Button - Removes Item */}
-                    <IconButton
-                      edge="end"
-                      onClick={() => removeFromNotes(spanish)}
-                      sx={{ flex: "0 0 auto" }}
+                  <React.Fragment key={index}>
+                    <ListItem
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        paddingY: 1,
+                      }}
                     >
-                      <CloseIcon />
-                    </IconButton>
-                  </ListItem>
+                      <Box sx={{ flex: 1, marginRight: 2 }}>
+                        {" "}
+                        {/* Added a container for the main text */}
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: responsiveFontSize,
+                          }}
+                        >
+                          {spanishBase ? spanish : english}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ flex: 1 }}>
+                        {" "}
+                        {/* Added a container for HiddenItem */}
+                        <HiddenItem
+                          display={showAll}
+                          text={spanishBase ? english : spanish}
+                          fontSize={responsiveFontSize}
+                        />
+                      </Box>
+
+                      <IconButton
+                        edge="end"
+                        onClick={() => removeFromNotes(spanish)}
+                        sx={{ flexShrink: 0 }}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </ListItem>
+                    {index < allNotes.length - 1 && <Divider />}
+                  </React.Fragment>
                 );
               })}
             </List>
