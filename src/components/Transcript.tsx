@@ -5,8 +5,9 @@ import {
   useState,
   useEffect,
 } from "react";
-import { Container, Typography } from "@mui/material";
+import { Container, Typography, useTheme } from "@mui/material";
 import WordWithTooltip from "./TranslatedWords";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 interface TranscriptProps {
   title: Record<string, string>;
@@ -25,10 +26,10 @@ export interface TranscriptSettings {
 }
 
 const jumpButtonStyle = {
-  lineHeight: "20px",
-  width: "20px",
-  minWidth: "20px",
-  padding: "0",
+  padding: "0px",
+  backgroundColor: "transparent",
+  cursor: "pointer",
+  border: "none",
 };
 
 export interface TranscriptRef {
@@ -49,6 +50,8 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
     },
     ref
   ) => {
+    const theme = useTheme();
+
     const [spanishTitle, englishTitle] = Object.entries(title)[0];
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const paragraphRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -167,7 +170,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
                 highlightParagraph(index + 1);
               }}
             >
-              {">"}
+              <BookmarkBorderIcon />
             </button>
           ) : null}
         </div>
@@ -175,7 +178,12 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
     };
 
     return (
-      <Container>
+      <Container
+        sx={{
+          backgroundColor: theme.palette.background.paper,
+          marginLeft: "15px",
+        }}
+      >
         {/* Render the title with tooltip */}
         <Typography variant="h4" gutterBottom>
           <WordWithTooltip

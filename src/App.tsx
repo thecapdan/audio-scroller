@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ThemeProvider, CssBaseline } from "@mui/material";
+import { ThemeProvider, CssBaseline, useTheme, styled } from "@mui/material";
 import { lightTheme, darkTheme } from "./theme";
 import { GlobalStyles } from "./GlobalStyles";
 
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EditNoteIcon from "@mui/icons-material/EditNote";
+import StyleIcon from "@mui/icons-material/Style";
 import Transcript, { TranscriptRef } from "./components/Transcript";
 
 import episode_1 from "./assets/episodes/episode_1.mp3";
@@ -25,6 +26,7 @@ import AudioTrack from "./components/AudioTrack";
 import EpisodeList from "./components/EpisodeList";
 import Settings from "./components/Settings";
 import SavedNotes from "./components/SavedNotes";
+import FlashCards from "./components/FlashCards";
 
 const episodeMeta: { [key: number]: any } = {
   1: episode_meta_1,
@@ -37,10 +39,12 @@ const episodeTracks: { [key: number]: any } = {
 
 const LandingPage: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const theme = useTheme();
 
   const [episodeNumber, setEpisodeNumber] = React.useState(1);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [flashcardsOpen, setFlashcardsOpen] = useState(false);
   const [showTimestamps, setShowtimestamps] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [savedNotes, setSavedNotes] = useState<Record<string, string>>({});
@@ -49,6 +53,10 @@ const LandingPage: React.FC = () => {
     showHighlight: true,
   });
   const [showGlow, setShowGlow] = useState(false);
+
+  const notesArray = Object.keys(savedNotes).map((key) => ({
+    [key]: savedNotes[key],
+  }));
 
   const settingsAnchorRef = useRef(null);
   const notesAnchorRef = useRef(null);
@@ -80,12 +88,15 @@ const LandingPage: React.FC = () => {
   };
 
   const settingsUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTranscriptSettings({
-      ...transcriptSettings,
-      [event.target.name]: event.target.checked,
-    });
-    if (event.target.name === "showTimestamps") {
+    if (event.target.name === "darkMode") {
+      setIsDarkMode(event.target.checked);
+    } else if (event.target.name === "showTimestamps") {
       setShowtimestamps(event.target.checked);
+    } else {
+      setTranscriptSettings({
+        ...transcriptSettings,
+        [event.target.name]: event.target.checked,
+      });
     }
   };
 
@@ -140,6 +151,7 @@ const LandingPage: React.FC = () => {
             flex: 1,
             display: "flex",
             flexDirection: "column",
+            backgroundColor: "black",
           }}
         >
           <AppBar
@@ -147,12 +159,18 @@ const LandingPage: React.FC = () => {
             color="default"
             elevation={1}
             sx={{
-              backgroundColor: "#f5f5f5",
+              backgroundColor: theme.palette.background.paper,
               borderBottom: "1px solid #ccc",
               paddingLeft: "35px",
             }}
           >
-            <Toolbar>
+            <Toolbar
+              sx={
+                {
+                  // marginLeft: "-10px",
+                }
+              }
+            >
               <AudioTrack
                 pathToMp3={episodeTracks[episodeNumber]}
                 timestamps={episodeMeta[episodeNumber].timestamps}
@@ -177,7 +195,7 @@ const LandingPage: React.FC = () => {
               flex: 1,
               overflowY: "auto",
               padding: 3,
-              backgroundColor: "#fafafa",
+              backgroundColor: theme.palette.background.paper,
             }}
             onClick={() => setDrawerOpen(false)}
           >
@@ -194,8 +212,8 @@ const LandingPage: React.FC = () => {
                 ref={settingsAnchorRef}
                 onClick={() => setSettingsOpen((prev) => !prev)}
                 sx={{
-                  backgroundColor: "white",
-                  borderRadius: "50%",
+                  backgroundColor: "grey",
+                  borderRadius: "33%",
                   boxShadow: 3,
                   padding: "10px",
                   "&:hover": {
@@ -211,7 +229,7 @@ const LandingPage: React.FC = () => {
                 sx={{
                   backgroundColor: showGlow ? "#004cff7d" : "white",
                   boxShadow: showGlow ? 20 : 3,
-                  borderRadius: "50%",
+                  borderRadius: "33%",
                   padding: "10px",
                   "&:hover": {
                     backgroundColor: "grey",
@@ -220,6 +238,21 @@ const LandingPage: React.FC = () => {
                 }}
               >
                 <EditNoteIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => setFlashcardsOpen((prev) => !prev)}
+                sx={{
+                  backgroundColor: showGlow ? "#004cff7d" : "white",
+                  boxShadow: showGlow ? 20 : 3,
+                  borderRadius: "33%",
+                  padding: "10px",
+                  "&:hover": {
+                    backgroundColor: "grey",
+                  },
+                  transition: "box-shadow 0.3s ease-in-out",
+                }}
+              >
+                <StyleIcon />
               </IconButton>
             </Stack>
 
@@ -231,12 +264,19 @@ const LandingPage: React.FC = () => {
               showHighlight={transcriptSettings.showHighlight}
               showTimestamps={showTimestamps}
               settingsUpdate={settingsUpdate}
+              isDarkMode={isDarkMode}
             />
 
             <SavedNotes
               isOpen={notesOpen}
               setNotesOpen={setNotesOpen}
               notes={savedNotes}
+            />
+
+            <FlashCards
+              isOpen={flashcardsOpen}
+              setOpen={setFlashcardsOpen}
+              notes={notesArray}
             />
 
             <Transcript

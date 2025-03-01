@@ -1,4 +1,5 @@
 import { Box, IconButton, Typography } from "@mui/material";
+
 import CloseIcon from "@mui/icons-material/Close";
 
 import { useState } from "react";
@@ -39,7 +40,6 @@ const HiddenItem: React.FC<HiddenItemProps> = ({
           fontWeight: "bold",
           overflow: "hidden",
           width: "100%",
-          //   whiteSpace: "nowrap",
         }}
       >
         {text}

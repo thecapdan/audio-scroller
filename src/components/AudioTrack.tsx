@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Box, Slider, IconButton, Typography, Button } from "@mui/material";
+import {
+  Box,
+  Slider,
+  IconButton,
+  Typography,
+  Button,
+  useTheme,
+} from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import React from "react";
@@ -23,6 +30,8 @@ const AudioTrack: React.FC<AudioTrackProps> = ({
   showTimestamps,
   audioRef,
 }) => {
+  const theme = useTheme();
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -78,7 +87,13 @@ const AudioTrack: React.FC<AudioTrackProps> = ({
   };
 
   return (
-    <Box sx={{ width: "100%", position: "relative" }}>
+    <Box
+      sx={{
+        width: "100%",
+        position: "relative",
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
       {/* Audio element */}
       <audio
         ref={audioRef}

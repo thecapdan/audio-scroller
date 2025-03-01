@@ -1,33 +1,35 @@
 import React from "react";
-import { Tooltip, styled } from "@mui/material";
+import { Tooltip, styled, useTheme } from "@mui/material";
 
 import { TooltipProps } from "@mui/material/Tooltip";
 
-const StyledSpan = styled("span")<{ size: string }>(({ size }) => {
-  let fontSize;
-  switch (size) {
-    case "Small":
-      fontSize = "16px";
-      break;
-    case "Medium":
-      fontSize = "18px";
-      break;
-    case "Large":
-      fontSize = "24px";
-      break;
-    default:
-      fontSize = "14px";
+const StyledSpan = styled("span")<{ size: string; textColor: string }>(
+  ({ size, textColor }) => {
+    let fontSize;
+    switch (size) {
+      case "Small":
+        fontSize = "16px";
+        break;
+      case "Medium":
+        fontSize = "18px";
+        break;
+      case "Large":
+        fontSize = "24px";
+        break;
+      default:
+        fontSize = "14px";
+    }
+    return {
+      cursor: "pointer",
+      fontSize,
+      color: textColor,
+      transition: "font-weight 0.2s ease-in-out", // Smooth transition effect
+      "&:hover": {
+        color: "#AA0000",
+      },
+    };
   }
-  return {
-    cursor: "pointer",
-    fontSize,
-    color: "darkblue",
-    transition: "font-weight 0.2s ease-in-out", // Smooth transition effect
-    "&:hover": {
-      color: "#AA0000",
-    },
-  };
-});
+);
 
 const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip
@@ -59,6 +61,8 @@ const WordWithTooltip: React.FC<{
   size: "Small" | "Medium" | "Large";
   save: Function;
 }> = ({ wordOrSentence, translation, size, save }) => {
+  const theme = useTheme();
+
   return (
     <StyledTooltip
       title={translation}
@@ -68,7 +72,9 @@ const WordWithTooltip: React.FC<{
         save(wordOrSentence, translation);
       }}
     >
-      <StyledSpan size={size}>{wordOrSentence}</StyledSpan>
+      <StyledSpan textColor={theme.palette.text.secondary} size={size}>
+        {wordOrSentence}
+      </StyledSpan>
     </StyledTooltip>
   );
 };
