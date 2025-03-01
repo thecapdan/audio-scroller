@@ -5,9 +5,18 @@ import {
   useState,
   useEffect,
 } from "react";
-import { Container, Typography, useTheme } from "@mui/material";
+import {
+  Container,
+  Typography,
+  useTheme,
+  Drawer,
+  Box,
+  Button,
+} from "@mui/material";
 import WordWithTooltip from "./TranslatedWords";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import dictionary from "../dictionary";
+import DictionaryDrawer from "./DictionaryDrawer";
 
 interface TranscriptProps {
   title: Record<string, string>;
@@ -56,8 +65,12 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
     const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
     const paragraphRefs = useRef<Record<number, HTMLDivElement | null>>({});
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [highlightedWord, setHighlightedWord] = useState("");
+    const [highlightedTranslation, setHighlightedTranslation] = useState("");
 
     const saveToNotes = (sentence: string, translation: string) => {
+      console.log(sentence);
       const savedTranslations = JSON.parse(
         localStorage.getItem("savedTranslations") || "{}"
       );
@@ -67,6 +80,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
         JSON.stringify(savedTranslations)
       );
       onNotesUpdate();
+      setDrawerOpen(false);
     };
 
     // Use Vite's method to resolve image URL dynamically
@@ -170,15 +184,39 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
                 highlightParagraph(index + 1);
               }}
             >
-              <BookmarkBorderIcon />
+              <BookmarkBorderIcon sx={{ fontSize: "1em" }} />{" "}
             </button>
           ) : null}
         </div>
       ));
     };
 
+    function handleTextSelection(): void {
+      const text = window.getSelection()?.toString().trim().toLowerCase();
+      const firstWord = text?.trim().split(" ")[0] || "";
+      const translation = dictionary[firstWord] || "";
+
+      setHighlightedWord(firstWord);
+      setHighlightedTranslation(translation);
+      console.log(firstWord);
+      setDrawerOpen(!!translation);
+    }
+
+    const toggleDrawer = (open: boolean) => (event: any) => {
+      console.log(open);
+      if (
+        event.type === "keydown" &&
+        (event.key === "Tab" || event.key === "Shift")
+      ) {
+        return;
+      }
+
+      setDrawerOpen(open);
+    };
+
     return (
       <Container
+        onMouseUp={handleTextSelection}
         sx={{
           backgroundColor: theme.palette.background.paper,
           marginLeft: "15px",
@@ -219,6 +257,14 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
           </button>
           {renderTextWithLineBreaks(text, translation)}
         </Typography>
+
+        <DictionaryDrawer
+          drawerOpen={drawerOpen}
+          toggleDrawer={toggleDrawer}
+          highlightedWord={highlightedWord}
+          highlightedTranslation={highlightedTranslation}
+          saveToNotes={saveToNotes}
+        />
       </Container>
     );
   }

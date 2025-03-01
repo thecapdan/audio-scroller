@@ -212,47 +212,60 @@ const LandingPage: React.FC = () => {
                 ref={settingsAnchorRef}
                 onClick={() => setSettingsOpen((prev) => !prev)}
                 sx={{
-                  backgroundColor: "grey",
+                  backgroundColor: isDarkMode ? "black" : "white",
+                  color: isDarkMode ? "white" : "black",
                   borderRadius: "33%",
                   boxShadow: 3,
-                  padding: "10px",
+                  padding: "5px", // 25% smaller
                   "&:hover": {
-                    backgroundColor: "grey",
+                    backgroundColor: isDarkMode ? "grey" : "lightgrey",
                   },
                 }}
               >
-                <SettingsIcon />
+                <SettingsIcon sx={{ fontSize: "1.5rem" }} />
               </IconButton>
+
               <IconButton
                 ref={notesAnchorRef}
                 onClick={() => setNotesOpen((prev) => !prev)}
                 sx={{
-                  backgroundColor: showGlow ? "#004cff7d" : "white",
+                  backgroundColor: isDarkMode
+                    ? "black"
+                    : showGlow
+                    ? "#004cff7d"
+                    : "white",
+                  color: isDarkMode ? "white" : "black",
                   boxShadow: showGlow ? 20 : 3,
                   borderRadius: "33%",
-                  padding: "10px",
+                  padding: "5px",
                   "&:hover": {
-                    backgroundColor: "grey",
+                    backgroundColor: isDarkMode ? "grey" : "lightgrey",
                   },
                   transition: "box-shadow 0.3s ease-in-out",
                 }}
               >
-                <EditNoteIcon />
+                <EditNoteIcon sx={{ fontSize: "1.5rem" }} />
               </IconButton>
+
               <IconButton
                 onClick={() => setFlashcardsOpen((prev) => !prev)}
                 sx={{
-                  backgroundColor: showGlow ? "#004cff7d" : "white",
+                  backgroundColor: isDarkMode
+                    ? "black"
+                    : showGlow
+                    ? "#004cff7d"
+                    : "white",
+                  color: isDarkMode ? "white" : "black",
                   boxShadow: showGlow ? 20 : 3,
                   borderRadius: "33%",
-                  padding: "10px",
+                  padding: "5px",
                   "&:hover": {
-                    backgroundColor: "grey",
+                    backgroundColor: isDarkMode ? "grey" : "lightgrey",
                   },
                   transition: "box-shadow 0.3s ease-in-out",
                 }}
               >
-                <StyleIcon />
+                <StyleIcon sx={{ fontSize: "1.5rem" }} />
               </IconButton>
             </Stack>
 
