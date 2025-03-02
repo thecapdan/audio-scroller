@@ -133,7 +133,7 @@ const SavedNotes: React.FC<SavedNotesProps> = ({ isOpen, setNotesOpen }) => {
             }}
           >
             {allNotes.length === 0
-              ? "You may click on the key words to add notes here"
+              ? "No words saved. To populate this list, highlight keywords in the transcript or click on the blue text"
               : ""}
             <List sx={{ width: "100%", bgcolor: "background.paper" }}>
               {allNotes.map((item, index) => {

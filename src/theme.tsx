@@ -50,6 +50,10 @@ export const lightTheme = createTheme({
     primary: {
       main: "#4a1a7b",
     },
+    secondary: {
+      main: "#4a1a7b",
+      contrastText: "rgba(0, 0, 0, 0.03)",
+    },
   },
 });
 
@@ -70,6 +74,19 @@ export const darkTheme = createTheme({
     },
     secondary: {
       main: "#4a1a7b",
+      contrastText: "#2a1f29",
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        "div[class*='MuiBox-root']": {
+          backgroundColor: "black", // Change background color
+        },
+        "header[class*='MuiPaper-root']": {
+          backgroundColor: "black", // Change background color
+        },
+      },
     },
   },
 });

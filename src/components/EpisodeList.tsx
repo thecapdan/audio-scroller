@@ -29,7 +29,7 @@ const EpisodeList: React.FC<EpisodeListProps> = ({
         variant="outlined"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
-        sx={{ mb: 2, paddingLeft: "10px" }}
+        sx={{ paddingLeft: "10px" }}
       />
       <List>
         {filteredItems.map((item, index) => (

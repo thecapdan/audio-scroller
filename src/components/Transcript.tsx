@@ -63,7 +63,6 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
     const [highlightedTranslation, setHighlightedTranslation] = useState("");
 
     const saveToNotes = (sentence: string, translation: string) => {
-      console.log(sentence);
       const savedTranslations = JSON.parse(
         localStorage.getItem("savedTranslations") || "{}"
       );
@@ -97,7 +96,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
 
       if (paragraphRefs.current[index]) {
         paragraphRefs.current[index]!.style.backgroundColor =
-          "rgba(0, 0, 0, 0.05)";
+          theme.palette.secondary.contrastText; // "rgba(255, 255, 255, 0.1)"
         paragraphRefs.current[index]!.style.borderRadius = "5px";
       }
     };
@@ -177,7 +176,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
                 highlightParagraph(index + 1);
               }}
             >
-              <BookmarkBorderIcon sx={{ fontSize: "1em" }} />{" "}
+              <BookmarkBorderIcon sx={{ fontSize: "1em", color: "grey" }} />{" "}
             </button>
           ) : null}
         </div>
@@ -246,7 +245,7 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
             style={jumpButtonStyle}
             onClick={() => jumpTo(timestamps[0])}
           >
-            {">"}
+            <BookmarkBorderIcon sx={{ fontSize: "1em", color: "grey" }} />{" "}
           </button>
           {renderTextWithLineBreaks(text, translation)}
         </Typography>

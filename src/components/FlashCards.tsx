@@ -160,9 +160,9 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
             </Button>
           </Box>
           {!allNotes.length ? (
-            <p>
-              You may click on the keywords in the transcript to create flash
-              cards to help further your learning
+            <p style={{ padding: "20px" }}>
+              No words saved. To populate the flash cards, highlight keywords in
+              the transcript or click on the blue text
             </p>
           ) : (
             <Box sx={cardContainerStyle}>

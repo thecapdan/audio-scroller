@@ -47,7 +47,6 @@ const LandingPage: React.FC = () => {
   const [flashcardsOpen, setFlashcardsOpen] = useState(false);
   const [showTimestamps, setShowtimestamps] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
-  const [savedNotes, setSavedNotes] = useState<Record<string, string>>({});
   const [transcriptSettings, setTranscriptSettings] = React.useState({
     autoScroll: false,
     showHighlight: true,
@@ -60,10 +59,6 @@ const LandingPage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const updateNotes = () => {
-    const savedTranslations = JSON.parse(
-      localStorage.getItem("savedTranslations") || "{}"
-    );
-    setSavedNotes(savedTranslations);
     setShowGlow(true);
     setTimeout(() => setShowGlow(false), 2000);
   };
@@ -115,7 +110,15 @@ const LandingPage: React.FC = () => {
       <CssBaseline />
       <GlobalStyles />
 
-      <div style={{ width: "100%", height: "100vh", overflowX: "hidden" }}>
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          margin: 0,
+          padding: 0,
+          overflowX: "hidden",
+        }}
+      >
         {" "}
         <Drawer
           open={drawerOpen}
@@ -200,7 +203,7 @@ const LandingPage: React.FC = () => {
               sx={{
                 position: "fixed",
                 top: "130px",
-                right: "15px",
+                right: "18px",
                 zIndex: 2000,
               }}
             >
