@@ -5,14 +5,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import {
-  Container,
-  Typography,
-  useTheme,
-  Drawer,
-  Box,
-  Button,
-} from "@mui/material";
+import { Container, Typography, useTheme } from "@mui/material";
 import WordWithTooltip from "./TranslatedWords";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import dictionary from "../dictionary";

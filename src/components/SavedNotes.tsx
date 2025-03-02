@@ -32,7 +32,6 @@ const useResponsiveFontSize = () => {
 interface SavedNotesProps {
   isOpen: boolean;
   setNotesOpen: (open: boolean) => void;
-  notes: Record<string, string>;
 }
 
 const style = {
@@ -52,11 +51,7 @@ const style = {
   overflow: "hidden",
 };
 
-const SavedNotes: React.FC<SavedNotesProps> = ({
-  isOpen,
-  setNotesOpen,
-  notes,
-}) => {
+const SavedNotes: React.FC<SavedNotesProps> = ({ isOpen, setNotesOpen }) => {
   const theme = useTheme();
 
   const [showAll, setShowAll] = useState(false);
@@ -65,25 +60,28 @@ const SavedNotes: React.FC<SavedNotesProps> = ({
   const responsiveFontSize = useResponsiveFontSize();
 
   useEffect(() => {
-    const translationsArr = Object.entries(notes).map(
-      ([sentence, translation]) => ({ [sentence]: translation })
-    );
-    setAllNotes(translationsArr);
-  }, [notes]);
-
-  const removeFromNotes = (sentence: string) => {
-    console.log(sentence);
+    if (isOpen) {
+      const savedTranslations = JSON.parse(
+        localStorage.getItem("savedTranslations") || "{}"
+      );
+      const notesArray = Object.keys(savedTranslations).map((key) => ({
+        [key]: savedTranslations[key],
+      }));
+      setAllNotes(notesArray);
+    }
+  }, [isOpen]);
+  const removeFromNotes = (entry: string) => {
     const savedTranslations = JSON.parse(
       localStorage.getItem("savedTranslations") || "{}"
     );
-    delete savedTranslations[sentence];
+    delete savedTranslations[entry];
     localStorage.setItem(
       "savedTranslations",
       JSON.stringify(savedTranslations)
     );
 
     setAllNotes((prevNotes) =>
-      prevNotes.filter((note) => !note.hasOwnProperty(sentence))
+      prevNotes.filter((note) => !note.hasOwnProperty(entry))
     );
   };
 

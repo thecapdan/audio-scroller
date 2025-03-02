@@ -8,10 +8,11 @@ import {
   Button,
 } from "@mui/material";
 
+import DeleteIcon from "@mui/icons-material/Delete";
+
 interface FlashCardsProps {
   isOpen: boolean;
   setOpen: (open: boolean) => void;
-  notes: Record<string, string>[];
 }
 
 const modalStyle = {
@@ -57,15 +58,26 @@ const smallButtonStyle = {
   transformOrigin: "bottom right",
 };
 
-const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen, notes }) => {
+const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [allNotes, setAllNotes] = useState<Record<string, string>[]>([]);
+
   const [isFlipped, setIsFlipped] = useState(false);
   const [showSpanishFirst, setShowSpanishFirst] = useState(true);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
-    setCurrentIndex(0);
-    setIsFlipped(false);
+    if (isOpen) {
+      const savedTranslations = JSON.parse(
+        localStorage.getItem("savedTranslations") || "{}"
+      );
+      const notesArray = Object.keys(savedTranslations).map((key) => ({
+        [key]: savedTranslations[key],
+      }));
+      setAllNotes(notesArray);
+      setCurrentIndex(0);
+      setIsFlipped(false);
+    }
   }, [isOpen]);
 
   useEffect(() => {
@@ -81,12 +93,46 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen, notes }) => {
 
   const handleNext = () => {
     setIsFlipped(false);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % notes.length);
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % allNotes.length);
+    }, 200);
   };
 
-  const currentNote = notes.length ? notes[currentIndex] : {};
-  const spanishSentence = notes.length ? Object.keys(currentNote)[0] : "";
-  const englishTranslation = notes.length ? Object.values(currentNote)[0] : "";
+  const removeFromNotes = (entry: string) => {
+    console.log(entry);
+    const savedTranslations = JSON.parse(
+      localStorage.getItem("savedTranslations") || "{}"
+    );
+    delete savedTranslations[entry];
+    localStorage.setItem(
+      "savedTranslations",
+      JSON.stringify(savedTranslations)
+    );
+
+    setTimeout(() => {
+      setAllNotes((prevNotes) => {
+        const updatedNotes = prevNotes.filter(
+          (note) => !note.hasOwnProperty(entry)
+        );
+
+        if (updatedNotes.length === 0) {
+          setCurrentIndex(0); // Reset index when all notes are deleted
+        } else if (currentIndex >= updatedNotes.length) {
+          setCurrentIndex(0); // Prevent out-of-bounds access
+        }
+
+        return updatedNotes;
+      });
+    }, 200);
+
+    setIsFlipped(false); // Reset flip state
+  };
+
+  const currentNote = allNotes.length ? allNotes[currentIndex] : {};
+  const spanishSentence = allNotes.length ? Object.keys(currentNote)[0] : "";
+  const englishTranslation = allNotes.length
+    ? Object.values(currentNote)[0]
+    : "";
 
   const cardStyle = {
     height: isSmallScreen ? "150px" : "300px",
@@ -96,7 +142,7 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen, notes }) => {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    position: "relative", // Needed for positioning buttons
+    position: "relative",
     borderRadius: "10px",
     boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.2)",
   };
@@ -113,7 +159,7 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen, notes }) => {
               {showSpanishFirst ? "ES → EN" : "EN → ES"}
             </Button>
           </Box>
-          {!notes.length ? (
+          {!allNotes.length ? (
             <p>
               You may click on the keywords in the transcript to create flash
               cards to help further your learning
@@ -148,7 +194,7 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen, notes }) => {
                     {showSpanishFirst ? englishTranslation : spanishSentence}
                     <Typography
                       variant={isSmallScreen ? "body2" : "subtitle1"}
-                      sx={{ fontSize: "0.5em" }} // Make the text half the size of the parent
+                      sx={{ fontSize: "0.5em" }}
                     >
                       ({showSpanishFirst ? spanishSentence : englishTranslation}
                       )
@@ -160,10 +206,10 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen, notes }) => {
                       variant="contained"
                       size="small"
                       color="primary"
-                      onClick={() => setIsFlipped(false)}
+                      onClick={() => removeFromNotes(spanishSentence)}
                       sx={smallButtonStyle}
                     >
-                      Flip
+                      <DeleteIcon />
                     </Button>
                     <Button
                       variant="contained"

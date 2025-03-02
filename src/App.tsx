@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ThemeProvider, CssBaseline, useTheme, styled } from "@mui/material";
+import { ThemeProvider, CssBaseline, useTheme } from "@mui/material";
 import { lightTheme, darkTheme } from "./theme";
 import { GlobalStyles } from "./GlobalStyles";
 
@@ -53,10 +53,6 @@ const LandingPage: React.FC = () => {
     showHighlight: true,
   });
   const [showGlow, setShowGlow] = useState(false);
-
-  const notesArray = Object.keys(savedNotes).map((key) => ({
-    [key]: savedNotes[key],
-  }));
 
   const settingsAnchorRef = useRef(null);
   const notesAnchorRef = useRef(null);
@@ -119,7 +115,7 @@ const LandingPage: React.FC = () => {
       <CssBaseline />
       <GlobalStyles />
 
-      <div style={{ width: "100vw", height: "100vh", margin: 0, padding: 0 }}>
+      <div style={{ width: "100%", height: "100vh", overflowX: "hidden" }}>
         {" "}
         <Drawer
           open={drawerOpen}
@@ -203,8 +199,8 @@ const LandingPage: React.FC = () => {
               spacing={1}
               sx={{
                 position: "fixed",
-                top: "150px",
-                right: "20px",
+                top: "130px",
+                right: "15px",
                 zIndex: 2000,
               }}
             >
@@ -232,7 +228,7 @@ const LandingPage: React.FC = () => {
                   backgroundColor: isDarkMode
                     ? "black"
                     : showGlow
-                    ? "#004cff7d"
+                    ? "#4a1a7b5c"
                     : "white",
                   color: isDarkMode ? "white" : "black",
                   boxShadow: showGlow ? 20 : 3,
@@ -253,7 +249,7 @@ const LandingPage: React.FC = () => {
                   backgroundColor: isDarkMode
                     ? "black"
                     : showGlow
-                    ? "#004cff7d"
+                    ? "#4a1a7b5c"
                     : "white",
                   color: isDarkMode ? "white" : "black",
                   boxShadow: showGlow ? 20 : 3,
@@ -280,17 +276,9 @@ const LandingPage: React.FC = () => {
               isDarkMode={isDarkMode}
             />
 
-            <SavedNotes
-              isOpen={notesOpen}
-              setNotesOpen={setNotesOpen}
-              notes={savedNotes}
-            />
+            <SavedNotes isOpen={notesOpen} setNotesOpen={setNotesOpen} />
 
-            <FlashCards
-              isOpen={flashcardsOpen}
-              setOpen={setFlashcardsOpen}
-              notes={notesArray}
-            />
+            <FlashCards isOpen={flashcardsOpen} setOpen={setFlashcardsOpen} />
 
             <Transcript
               title={episodeMeta[episodeNumber].title}
