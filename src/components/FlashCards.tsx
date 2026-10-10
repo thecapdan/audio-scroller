@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ConjugationEntry } from "../dictionary";
 
 interface FlashCardsProps {
   isOpen: boolean;
@@ -60,7 +61,9 @@ const smallButtonStyle = {
 
 const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [allNotes, setAllNotes] = useState<Record<string, string>[]>([]);
+  const [allNotes, setAllNotes] = useState<
+    Record<string, string | ConjugationEntry>[]
+  >([]);
 
   const [isFlipped, setIsFlipped] = useState(false);
   const [showSpanishFirst, setShowSpanishFirst] = useState(true);
@@ -72,7 +75,7 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
         localStorage.getItem("savedTranslations") || "{}"
       );
       const notesArray = Object.keys(savedTranslations).map((key) => ({
-        [key]: savedTranslations[key],
+        [key]: savedTranslations[key] as string | ConjugationEntry,
       }));
       setAllNotes(notesArray);
       setCurrentIndex(0);
@@ -85,7 +88,7 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
       setIsSmallScreen(window.innerWidth < 768);
     };
     window.addEventListener("resize", handleResize);
-    handleResize(); // Call once to set initial state
+    handleResize();
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -96,6 +99,30 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
     setTimeout(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % allNotes.length);
     }, 200);
+  };
+
+  const renderTranslation = (
+    translation: string | ConjugationEntry,
+    showConjugatedToo = false
+  ) => {
+    if (typeof translation === "string") {
+      return translation;
+    } else {
+      return (
+        <Box>
+          <Typography variant="h6">
+            {translation.engConjugated}
+            <br />
+            {showConjugatedToo ? `(${translation.conjugated})` : ""}
+          </Typography>
+          <Typography variant="body2">
+            {showConjugatedToo
+              ? `Infinitive: ${translation.esInfinitive} (${translation.engInfinitive})`
+              : ""}
+          </Typography>
+        </Box>
+      );
+    }
   };
 
   const removeFromNotes = (entry: string) => {
@@ -170,7 +197,9 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
                 {/* FRONT SIDE */}
                 <Box key="front" sx={cardStyle}>
                   <Typography variant="h5" sx={{ textAlign: "center" }}>
-                    {showSpanishFirst ? spanishSentence : englishTranslation}
+                    {showSpanishFirst
+                      ? spanishSentence
+                      : renderTranslation(englishTranslation, false)}
                   </Typography>
                   <Box sx={buttonContainerStyle}>
                     <Button
@@ -191,14 +220,9 @@ const FlashCards: React.FC<FlashCardsProps> = ({ isOpen, setOpen }) => {
                     variant={isSmallScreen ? "h6" : "h5"}
                     sx={{ textAlign: "center" }}
                   >
-                    {showSpanishFirst ? englishTranslation : spanishSentence}
-                    <Typography
-                      variant={isSmallScreen ? "body2" : "subtitle1"}
-                      sx={{ fontSize: "0.5em" }}
-                    >
-                      ({showSpanishFirst ? spanishSentence : englishTranslation}
-                      )
-                    </Typography>
+                    {showSpanishFirst
+                      ? renderTranslation(englishTranslation, true)
+                      : spanishSentence}
                   </Typography>
 
                   <Box sx={buttonContainerStyle}>

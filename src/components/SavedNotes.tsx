@@ -15,6 +15,7 @@ import HiddenItem from "./atoms/HiddenText";
 import { Divider } from "@mui/material";
 
 import { useMediaQuery } from "@mui/material";
+import { ConjugationEntry } from "../dictionary";
 
 const useResponsiveFontSize = () => {
   const isSmall = useMediaQuery("(max-width:500px)");
@@ -55,7 +56,9 @@ const SavedNotes: React.FC<SavedNotesProps> = ({ isOpen, setNotesOpen }) => {
   const theme = useTheme();
 
   const [showAll, setShowAll] = useState(false);
-  const [allNotes, setAllNotes] = useState<Record<string, string>[]>([]);
+  const [allNotes, setAllNotes] = useState<
+    Record<string, string | ConjugationEntry>[]
+  >([]);
   const [spanishBase, setSpanishBase] = useState(true);
   const responsiveFontSize = useResponsiveFontSize();
 
@@ -64,9 +67,13 @@ const SavedNotes: React.FC<SavedNotesProps> = ({ isOpen, setNotesOpen }) => {
       const savedTranslations = JSON.parse(
         localStorage.getItem("savedTranslations") || "{}"
       );
+      console.log("savedTranslations");
+      console.log(savedTranslations);
       const notesArray = Object.keys(savedTranslations).map((key) => ({
         [key]: savedTranslations[key],
       }));
+      console.log("notesArray");
+      console.log(notesArray);
       setAllNotes(notesArray);
     }
   }, [isOpen]);
@@ -137,7 +144,15 @@ const SavedNotes: React.FC<SavedNotesProps> = ({ isOpen, setNotesOpen }) => {
               : ""}
             <List sx={{ width: "100%", bgcolor: "background.paper" }}>
               {allNotes.map((item, index) => {
-                const [spanish, english] = Object.entries(item)[0];
+                const [spanish, english] = Object.entries(item)[0] as [
+                  string,
+                  ConjugationEntry
+                ];
+
+                // Determine displayed values
+                const isObject = typeof english === "object";
+                const spanishText = isObject ? english.esInfinitive : spanish;
+                const englishText = isObject ? english.engInfinitive : english;
 
                 return (
                   <React.Fragment key={index}>
@@ -168,12 +183,12 @@ const SavedNotes: React.FC<SavedNotesProps> = ({ isOpen, setNotesOpen }) => {
                             width: "100%",
                           }}
                         >
-                          {spanishBase ? spanish : english}
+                          {spanishBase ? spanishText : englishText}
                         </Typography>
                       </Box>
                       <HiddenItem
                         display={showAll}
-                        text={spanishBase ? english : spanish}
+                        text={spanishBase ? englishText : spanishText}
                         fontSize={responsiveFontSize}
                         remove={() => removeFromNotes(spanish)}
                         key={spanish}

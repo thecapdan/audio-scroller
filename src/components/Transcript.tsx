@@ -8,7 +8,7 @@ import {
 import { Container, Typography, useTheme } from "@mui/material";
 import WordWithTooltip from "./TranslatedWords";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import dictionary from "../dictionary";
+import dictionary, { ConjugationEntry } from "../dictionary";
 import DictionaryDrawer from "./DictionaryDrawer";
 
 interface TranscriptProps {
@@ -60,7 +60,9 @@ const Transcript = forwardRef<TranscriptRef, TranscriptProps>(
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [highlightedWord, setHighlightedWord] = useState("");
-    const [highlightedTranslation, setHighlightedTranslation] = useState("");
+    const [highlightedTranslation, setHighlightedTranslation] = useState<
+      string | ConjugationEntry
+    >("");
 
     const saveToNotes = (sentence: string, translation: string) => {
       const savedTranslations = JSON.parse(
